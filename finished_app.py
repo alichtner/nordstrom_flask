@@ -41,5 +41,4 @@ def wine():
     return render_template('wine.html')
 
 if __name__ == '__main__':
-    application.debug = True
-    application.run()
+    application.run(debug=True)
