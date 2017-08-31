@@ -11,6 +11,7 @@
     <title>Logo Nav - Start Bootstrap Template</title>
 
     <!-- Bootstrap core CSS -->
+
     <link  rel="stylesheet" href="{{ url_for('static', filename='vendor/bootstrap/css/bootstrap.min.css') }}">
 
     <!-- Custom styles for this template -->
@@ -51,8 +52,31 @@
     <div class="container">
       <h1 class="mt-5">Would you survive the Titanic?</h1>
       <p>The logo in the navbar is now a default Bootstrap feature in Bootstrap 4! Make sure to set the width and height of the logo within the HTML. For best results, it's recommended that you use an SVG image as your logo.</p>
+
+        <div class="col-lg-6">
+        <form action="/titanic/predict" method="post" id="titanic_predict">
+            <div>
+                <label for="name">Gender: M or F</label>
+                <input type="text" id="gender" name="predict_gender">
+            </div>
+            <div>
+                <label for="mail">Age: 0 - 100 </label>
+                <input type="text" id="age" name="predict_age">
+            </div>
+            <div>
+                <label for="msg">Fare Cost: 0 - 35000 ($)</label>
+                <input type="text" id="fare" name="predict_fare">
+            </div>
+        </form>
+        <button type="submit" form="titanic_predict" value="Submit">Predict</button>
+        </div>
+    <div class="col-lg-6">
     <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/RMS_Titanic_3.jpg/1200px-RMS_Titanic_3.jpg" height="400px">
     </div>
+        {{result}}
+    </div>
+
+
     <!-- /.container -->
 
     <!-- Bootstrap core JavaScript -->
@@ -63,3 +87,4 @@
   </body>
 
 </html>
+
