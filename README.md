@@ -8,11 +8,11 @@ Aaron Lichtner, Data Scientist @ Nordstrom
 
 Flask is a web framework for Python. In other words, it's a way to use python to create websites, web apps and APIs.
 
-###Workshop Topics
- - [Creating your flask dev environment](#Creating your Flask Environment)
- - [Deploying a basic flask app](#Basic Flask App
+### Workshop Topics
+ - [Creating your flask dev environment](# Creating your Flask Environment)
+ - [Deploying a basic flask app](# Basic Flask App
 )
- - [Using Flask to train and predict with a model](#Now let's do some Data Science
+ - [Using Flask to train and predict with a model](# Now let's do some Data Science
 )
  - Using a Bootstrap templates to add some style
  - jinja templating
@@ -43,7 +43,7 @@ Flask is a web framework for Python. In other words, it's a way to use python to
 - Install flask
 `pip install flask`
 
-#Basic Flask App
+# Basic Flask App
 
 1. In your root directory, create your `app.py` file, import flask and create your flask object.
 ```python
