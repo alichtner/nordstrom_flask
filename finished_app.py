@@ -34,13 +34,9 @@ def twice(x):
 # -------- DATA SCIENCE TIME --------- #
 # ------------------------------------ #
 
-@app.route('/basictitanic', methods=['GET', 'POST'])
-def basictitanic():
-    return render_template('titanic.html')
-
 @app.route('/titanic', methods=['GET','POST'])
 def titanic():
-    data = {}
+    data = {}   # data object to be passed back to the web page
     if request.form:
         # get the input data
         form_data = request.form
@@ -63,13 +59,8 @@ def titanic():
         prediction = L1_logistic.predict_proba(input_data.reshape(1, -1))
         prediction = prediction[0][1] # probability of survival
         data['prediction'] = '{:.1f}% Chance of Survival'.format(prediction * 100)
-        data['predict_class'] = predict_class
-        data['predict_age'] = predict_age
-        data['predict_sibsp'] = predict_sibsp
-        data['predict_parch'] = predict_parch
-        data['predict_fare'] = predict_fare
-        data['predict_sex'] = predict_sex
-    return render_template('titanic.html', data=data)
+        
+    return render_template('titanic_finished.html', data=data)
 
 
 if __name__ == '__main__':

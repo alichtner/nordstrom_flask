@@ -45,45 +45,46 @@
         <p>This model predicts the probability of survival on the titanic using a logistic regression model trained on actual data from the Titanic.</p>
         <div class="row">
             <div class="col-lg-6">
-            <form action="/titanic" method="post" id="titanic_predict">
-                 <div>
-                    <label for="name">Ticket Class: 1, 2, or 3</label>
-                    <input type="text" id="class" name="predict_class" value=1>
-                </div>
-                <div>
-                    <label for="name">Age: 0 - 100 </label>
-                    <input type="text" id="age" name="predict_age" value=25>
-                </div>
-                <div>
-                    <label for="name"># Siblings and Spouses</label>
-                    <input type="text" id="sibsp" name="predict_sibsp" value=1>
-                </div>
-                <div>
-                    <label for="name"># Children and Parents</label>
-                    <input type="text" id="parch" name="predict_parch" value=0>
-                </div>
-                <div>
-                    <label for="name">Ticket Fare: 0 - 500 ($) </label>
-                    <input type="text" id="fare" name="predict_fare" value=250>
-                </div>
-                <div>
-                    <label for="name">Gender: M or F</label>
-                    <input type="text" id="sex" name="predict_sex" value='F'>
-                </div>
-            </form>
+                <!-- The web form goes here -->
+                <form action="/titanic" method="post" id="titanic_predict">
+                     <div>
+                        <label for="name">Ticket Class: 1, 2, or 3</label>
+                        <input type="text" id="class" name="predict_class" value=1>
+                    </div>
+                    <div>
+                        <label for="name">Age: 0 - 100 </label>
+                        <input type="text" id="age" name="predict_age" value=25>
+                    </div>
+                    <div>
+                        <label for="name"># Siblings and Spouses</label>
+                        <input type="text" id="sibsp" name="predict_sibsp" value=1>
+                    </div>
+                    <div>
+                        <label for="name"># Children and Parents</label>
+                        <input type="text" id="parch" name="predict_parch" value=0>
+                    </div>
+                    <div>
+                        <label for="name">Ticket Fare: 0 - 500 ($) </label>
+                        <input type="text" id="fare" name="predict_fare" value=250>
+                    </div>
+                    <div>
+                        <label for="name">Gender: M or F</label>
+                        <input type="text" id="sex" name="predict_sex" value='F'>
+                    </div>
+                </form>
             <button class="btn" type="submit" form="titanic_predict" value="Submit">Predict</button>
             </div>
 
-            <!-- Data Presentation -->
-            <div>
+            <div class="col-lg-6">
+                <!-- Result presentation goes here -->
                 {% if data.prediction %}
                     <h1>{{data.prediction}}</h1>
-                    <h5>Ticket Class: {{data.predict_class}}</h5>
-                    <h5>Age: {{data.predict_age}}</h5>
-                    <h5>Siblings & Spouses: {{data.predict_sibsp}}</h5>
+                    <h5>Ticket Class: {{data.form.predict_class}}</h5>
+                    <h5>Age: {{data.form.predict_age}}</h5>
+                    <h5>Siblings & Spouses: {{data.form.predict_sibsp}}</h5>
                     <h5>Children & Parents: {{data.predict_parch}}</h5>
-                    <h5>Ticket Fare: ${{data.predict_fare}}</h5>
-                    <h5>Gender: {{data.predict_sex}}</h5>
+                    <h5>Ticket Fare: ${{data.form.predict_fare}}</h5>
+                    <h5>Gender: {{data.form.predict_sex}}</h5>
                 {% endif %}
             </div>
         </div>

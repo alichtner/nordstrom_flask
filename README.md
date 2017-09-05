@@ -12,8 +12,9 @@ Flask is a web framework for Python. In other words, it's a way to use python to
  - [Creating your flask dev environment](#creating-your-flask-environment)
  - [Deploying a basic flask app](#basic-flask-app)
  - [Using Flask to train and predict with a model](#now-lets-do-some-data-science)
- - Using a Bootstrap templates to add some style
- - jinja templating
+ - [Using a Bootstrap templates to add some style](#rendering-html-templates-using-flask)
+ - [Passing data and predicting with our model](#hooking-it-all-up)
+ - [Jinja2 templating with flask](#jinja2-templating)
  
 # Creating your Flask Environment
 ### python 3
@@ -93,13 +94,13 @@ def twice(x):
 
 We will be building a survival classifier using the [Titanic Survival Dataset](https://www.kaggle.com/c/titanic/data). Our goal is to create an interface for a user to make and view predictions.
 
-The code to read in the data, split it up and train the model has already been written for you. We're going to focus on how to implement the and predict with it through the flask web interface. 
+The code to read in the data, split it up and train the model has already been written for you. We're going to focus on how to implement the model and predict with it through the flask web interface. 
 
 
 ### Install and import additional packages 
 1. First make sure you have all the required packages in your virtualenv.
 
-```python
+```bash
 # python 2
 pip install pandas, sklearn, scipy
 
@@ -121,7 +122,7 @@ from sklearn.metrics import classification_report
 ```
 
 ### Build the model
-1. The following code will read in the `titanic_data.csv`, clean it up, split it into test and training sets and then train a simple logistic regression to predict the probability of survival. Paste this code right at the start of the script initialization. The model will be available in the namespace of the flask app.
+3. The following code will read in the `titanic_data.csv`, clean it up, split it into test and training sets and then train a simple logistic regression model to predict the probability of survival. Paste this code right at the start of the script initialization. The model will be available in the namespace of the flask app.
 
 ```python
 # read in data and clean the gender column
@@ -155,20 +156,23 @@ if __name__ == '__main__':
     app.run(debug=True)
 ```
 
-- Rerunning the script now should show us the classification_report from the logistic regression model in the terminal. We haven't hooked up any flask routes to the model however. Let's change that.
+4. Rerunning the script now should show us the classification_report from the logistic regression model in the terminal. We haven't hooked up any flask routes to the model however. Let's change that.
 
-### Rendering HTML templates from Flask
-I've created a basic HTML template where we can build a user interface for predicting with our amazing model.
+### Rendering HTML templates using Flask
+5. I've created a basic HTML template where we can build a user interface for predicting with our amazing model.
 
 ```python
-@app.route('/titanic', methods=['GET','POST'])
+@app.route('/titanic')
 def titanic():
     return render_template('titanic.html')
 ```
 
+6. Go to the [Titanic Template](http://127.0.0.1:5000/titanic) to see where you will be interfacing with the user.
+
+## Hooking it all up
 ### Getting prediction inputs into flask
 
-We use the following variables to predict whether someone will survive the titanic:
+Our model uses the following variables to predict whether someone will survive the titanic:
 - Ticket Class
 - Age
 - \# Siblings & Spouses 
@@ -180,8 +184,9 @@ In order to hook up the web interface with the model we have to allow the user t
 
 ![](static/resources/form.png)
 
-In the `titanic.html` file, add the following
-```html
+7. In the `titanic.html` file, add the following code.
+```html                
+            <!-- The web form goes here -->
             <form action="/titanic" method="post" id="titanic_predict">
                  <div>
                     <label for="name">Ticket Class: 1, 2, or 3</label>
@@ -212,22 +217,98 @@ In the `titanic.html` file, add the following
 ```
 When you go check out your page you should see the web form there for you. Press the predict button though and you'll get an error saying that method isn't allowed. Flask routes by default enable the 'GET' method but if we want to allow any additional functionality, such as submitting data to the flask server via a webform we'll need to enable those explicitly.
 
+8. Update the `methods` parameter to allow both 'GET' and 'POST' methods on the `/titanic` route.
 ```python
 @app.route('/titanic', methods=['GET','POST'])
 def titanic():
     return render_template('titanic.html')
 ```
 
+9. Request the data from the web form inside the flask function.
+
+```python
+def titanic():
+    data = {} 
+    if request.form:
+        # get the form data
+        form_data = request.form
+        data['form'] = form_data
+        predict_class = float(form_data['predict_class'])
+        predict_age = float(form_data['predict_age'])
+        predict_sibsp = float(form_data['predict_sibsp'])
+        predict_parch = float(form_data['predict_parch'])
+        predict_fare = float(form_data['predict_fare'])
+        predict_sex = form_data['predict_sex']
+        print(data)
+    return render_template('titanic.html')
+```
+10. Test the connection using the **predict** button on the web page to the flask function to make sure data is being passed from the web form by printing it to the terminal. We will be feeding this data into our model to make our predictions.
+
+### Prepare input data and get the prediction
+
+11a. Convert the `predict_sex` variable from a string into binary (F = 0, M = 1).
+
+11b. Build the numpy array of values to pass into the model. The order does matter. 
+
+11c. Call the `predict_proba()` method on our logistic regression model with our input data. 
+
+11d. Grab the **survival probability** from the prediction and put into the `data` object to be passed back to the web page.
+
+```python
+def titanic():
+    data = {} 
+    if request.form:
+        # get the form data
+        form_data = request.form
+        data['form'] = form_data
+        predict_class = float(form_data['predict_class'])
+        predict_age = float(form_data['predict_age'])
+        predict_sibsp = float(form_data['predict_sibsp'])
+        predict_parch = float(form_data['predict_parch'])
+        predict_fare = float(form_data['predict_fare'])
+        predict_sex = form_data['predict_sex']
+        
+        # convert the sex from text to binary
+        if predict_sex == 'M':
+            sex = 0
+        else:
+            sex = 1
+        input_data = np.array([predict_class, predict_age, predict_sibsp, predict_parch, predict_fare, sex])
+        
+        # get prediction
+        prediction = L1_logistic.predict_proba(input_data.reshape(1, -1))
+        prediction = prediction[0][1] # probability of survival
+        data['prediction'] = '{:.1f}% Chance of Survival'.format(prediction * 100)
+    return render_template('titanic.html', data=data)
+``` 
+### Jinja2 Templating
+
+We are now getting the input data from the form and predicting with it. Now we have to tell the client-side how to display the information. We will be using Jinja2 templating to control how data from the server is displayed. 
+
+12. Add the following to `titanic.html`. In Jinja2, we access data objects inside double brackets, i.e. `{{}}`. 
 ```html
-                {% if data.prediction %}
-                    <h1>{{data.prediction}}</h1>
-                    <h5>Ticket Class: {{data.predict_class}}</h5>
-                    <h5>Age: {{data.predict_age}}</h5>
-                    <h5>Siblings & Spouses: {{data.predict_sibsp}}</h5>
-                    <h5>Children & Parents: {{data.predict_parch}}</h5>
-                    <h5>Ticket Fare: ${{data.predict_fare}}</h5>
-                    <h5>Gender: {{data.predict_sex}}</h5>
-                {% endif %}
+        <div class="col-lg-6">
+            <!-- Result presentation goes here -->
+            {{data}}
+        </div>
+```
+
+Now all the bits are pieces are hooked up. Time to do just a bit of UI work. Jinja2 allows you to use python-like logic to control the HTML that is displayed. 
+
+13. In the `titanic.html` file, use a simple **if** statement to not display anything if no prediction is present. Then add some HTML to structure what the user will see. Here we want to show the prediction and the input parameters they put into the model.
+```html
+         <div class="col-lg-6">
+            <!-- Result presentation goes here -->
+            {% if data.prediction %}
+                <h1>{{data.prediction}}</h1>
+                <h5>Ticket Class: {{data.form.predict_class}}</h5>
+                <h5>Age: {{data.form.predict_age}}</h5>
+                <h5>Siblings & Spouses: {{data.form.predict_sibsp}}</h5>
+                <h5>Children & Parents: {{data.form.predict_parch}}</h5>
+                <h5>Ticket Fare: ${{data.form.predict_fare}}</h5>
+                <h5>Gender: {{data.form.predict_sex}}</h5>
+            {% endif %}
+        </div>
 ```
 
 ## Basic Flask App Organization
@@ -252,17 +333,15 @@ def titanic():
     | - data/
 ```
 
-# Get some HTML Templates 
-[Bootstrap Templates](https://startbootstrap.com/)
-
-```python 
-from flask import Flask, request, render_template
-```
-
 # Keep Going!
 - plot a visualization of the data and present it on the web page
 - have the `titanic/` route return a representative image based on the prediction of survive or not survive
 - train an entirely different model and create a new route to its results
+
+
+# Free Bootstrap Templates
+[Bootstrap Templates](https://startbootstrap.com/)
+
 
 ### Further Questions: 
 - Aaron Lichtner, Data Scientist @ Nordstrom
