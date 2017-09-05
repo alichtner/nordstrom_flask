@@ -5,7 +5,8 @@ from flask import render_template, request
 import pandas as pd
 import numpy as np
 from sklearn.linear_model import LogisticRegression
-from sklearn.cross_validation import train_test_split
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
 
 app = Flask(__name__)
 
@@ -33,9 +34,12 @@ def twice(x):
 # -------- DATA SCIENCE TIME --------- #
 # ------------------------------------ #
 
+@app.route('/basictitanic', methods=['GET', 'POST'])
+def basictitanic():
+    return render_template('titanic.html')
 
-@app.route('/titanic/predict', methods=['GET','POST'])
-def titanic_predict():
+@app.route('/titanic', methods=['GET','POST'])
+def titanic():
     data = {}
     if request.form:
         # get the input data
@@ -58,7 +62,7 @@ def titanic_predict():
         # get prediction
         prediction = L1_logistic.predict_proba(input_data.reshape(1, -1))
         prediction = prediction[0][1] # probability of survival
-        data['prediction'] = '{:.2f}% Chance of Survival'.format(prediction)
+        data['prediction'] = '{:.1f}% Chance of Survival'.format(prediction * 100)
         data['predict_class'] = predict_class
         data['predict_age'] = predict_age
         data['predict_sibsp'] = predict_sibsp
@@ -74,7 +78,12 @@ if __name__ == '__main__':
     titanic_df['sex_binary'] = titanic_df['sex'].map({'female': 1, 'male': 0})
     train_df, test_df = train_test_split(titanic_df)
 
+    titanic_df = pd.read_csv('data/titanic_data.csv')
+    titanic_df['sex_binary'] = titanic_df['sex'].map({'female': 1, 'male': 0})
+
+    # choose our features and create test and train sets
     features = [u'pclass', u'age', u'sibsp', u'parch', u'fare', u'sex_binary', 'survived']
+    train_df, test_df = train_test_split(titanic_df)
     train_df = train_df[features].dropna()
     test_df = test_df[features].dropna()
 
@@ -84,7 +93,14 @@ if __name__ == '__main__':
     X_test = test_df[features]
     y_test = test_df['survived']
 
+    # fit the model
     L1_logistic = LogisticRegression(C=1.0, penalty='l1')
     L1_logistic.fit(X_train, y_train)
 
+    # check the performance
+    target_names = ['Died', 'Survived']
+    y_pred = L1_logistic.predict(X_test)
+    print(classification_report(y_test, y_pred, target_names=target_names))
+
+    # start the app
     app.run(debug=True)

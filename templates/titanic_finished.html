@@ -45,8 +45,7 @@
         <p>This model predicts the probability of survival on the titanic using a logistic regression model trained on actual data from the Titanic.</p>
         <div class="row">
             <div class="col-lg-6">
-                <!-- The web form goes here -->
-                 <form action="/basictitanic" method="post" id="titanic_predict">
+            <form action="/titanic" method="post" id="titanic_predict">
                  <div>
                     <label for="name">Ticket Class: 1, 2, or 3</label>
                     <input type="text" id="class" name="predict_class" value=1>
@@ -75,8 +74,17 @@
             <button class="btn" type="submit" form="titanic_predict" value="Submit">Predict</button>
             </div>
 
-            <div class="col-lg-6">
-                <!-- Result presentation goes here -->
+            <!-- Data Presentation -->
+            <div>
+                {% if data.prediction %}
+                    <h1>{{data.prediction}}</h1>
+                    <h5>Ticket Class: {{data.predict_class}}</h5>
+                    <h5>Age: {{data.predict_age}}</h5>
+                    <h5>Siblings & Spouses: {{data.predict_sibsp}}</h5>
+                    <h5>Children & Parents: {{data.predict_parch}}</h5>
+                    <h5>Ticket Fare: ${{data.predict_fare}}</h5>
+                    <h5>Gender: {{data.predict_sex}}</h5>
+                {% endif %}
             </div>
         </div>
         <div class="row">
@@ -97,3 +105,4 @@
   </body>
 
 </html>
+

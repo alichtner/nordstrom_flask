@@ -91,32 +91,144 @@ def twice(x):
 
 # Now let's do some Data Science
 
-We will be building a survival classifier using the [Titanic Survival Dataset](https://www.kaggle.com/c/titanic/data). 
+We will be building a survival classifier using the [Titanic Survival Dataset](https://www.kaggle.com/c/titanic/data). Our goal is to create an interface for a user to make and view predictions.
 
-The code to read in the data, split it up and train the model has already been written for you. We're going to focus on how to implement a training function 
+The code to read in the data, split it up and train the model has already been written for you. We're going to focus on how to implement the and predict with it through the flask web interface. 
 
-When submitting a form, make sure to allow the POST method to be used with your route.
 
+### Install and import additional packages 
 1. First make sure you have all the required packages in your virtualenv.
 
 ```python
 # python 2
-pip install sklearn 
-pip install pandas
+pip install pandas, sklearn, scipy
 
 # python 3
-pip3 install sklearn 
-pip3 install pandas
+pip3 install pandas, sklearn, scipy
 ```
 
-```python 
-from flask import Flask
-from sklearn import ...
+2. Import the libraries required for modeling. `render_template` and `request` are needed for us to get data from the web interface to the flask app and then to present the results in a more visually appealing way than basic text.
+```python
+from flask import Flask     # you already should have this 
+from flask import render_template, request
+
+# modeling packages
+import pandas as pd
+import numpy as np
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
 ```
 
-1. train model without using a route, predict with it, then run it through a template
+### Build the model
+1. The following code will read in the `titanic_data.csv`, clean it up, split it into test and training sets and then train a simple logistic regression to predict the probability of survival. Paste this code right at the start of the script initialization. The model will be available in the namespace of the flask app.
 
-You are now able to train/load a model into a flask app and predict with it. Now on to some more advanced topics.
+```python
+# read in data and clean the gender column
+if __name__ == '__main__':
+    # build a basic model for titanic survival
+    titanic_df = pd.read_csv('data/titanic_data.csv')
+    titanic_df['sex_binary'] = titanic_df['sex'].map({'female': 1, 'male': 0})
+    
+    # choose our features and create test and train sets
+    features = [u'pclass', u'age', u'sibsp', u'parch', u'fare', u'sex_binary', 'survived']
+    train_df, test_df = train_test_split(titanic_df)
+    train_df = train_df[features].dropna()
+    test_df = test_df[features].dropna()
+    
+    features.remove('survived')
+    X_train = train_df[features]
+    y_train = train_df['survived']
+    X_test = test_df[features]
+    y_test = test_df['survived']
+    
+    # fit the model
+    L1_logistic = LogisticRegression(C=1.0, penalty='l1')
+    L1_logistic.fit(X_train, y_train)
+    
+    # check the performance
+    target_names = ['Died', 'Survived']
+    y_pred = L1_logistic.predict(X_test)
+    print(classification_report(y_test, y_pred, target_names=target_names))
+    
+    # start the app
+    app.run(debug=True)
+```
+
+- Rerunning the script now should show us the classification_report from the logistic regression model in the terminal. We haven't hooked up any flask routes to the model however. Let's change that.
+
+### Rendering HTML templates from Flask
+I've created a basic HTML template where we can build a user interface for predicting with our amazing model.
+
+```python
+@app.route('/titanic', methods=['GET','POST'])
+def titanic():
+    return render_template('titanic.html')
+```
+
+### Getting prediction inputs into flask
+
+We use the following variables to predict whether someone will survive the titanic:
+- Ticket Class
+- Age
+- \# Siblings & Spouses 
+- \# Children & Parents
+- Ticket Fare
+- Gender
+
+In order to hook up the web interface with the model we have to allow the user to input all of the required model parameters. The easiest way to do this is with a simple web form. 
+
+![](static/resources/form.png)
+
+In the `titanic.html` file, add the following
+```html
+            <form action="/titanic" method="post" id="titanic_predict">
+                 <div>
+                    <label for="name">Ticket Class: 1, 2, or 3</label>
+                    <input type="text" id="class" name="predict_class" value=1>
+                </div>
+                <div>
+                    <label for="name">Age: 0 - 100 </label>
+                    <input type="text" id="age" name="predict_age" value=25>
+                </div>
+                <div>
+                    <label for="name"># Siblings and Spouses</label>
+                    <input type="text" id="sibsp" name="predict_sibsp" value=1>
+                </div>
+                <div>
+                    <label for="name"># Children and Parents</label>
+                    <input type="text" id="parch" name="predict_parch" value=0>
+                </div>
+                <div>
+                    <label for="name">Ticket Fare: 0 - 500 ($) </label>
+                    <input type="text" id="fare" name="predict_fare" value=250>
+                </div>
+                <div>
+                    <label for="name">Gender: M or F</label>
+                    <input type="text" id="sex" name="predict_sex" value='F'>
+                </div>
+            </form>
+            <button class="btn" type="submit" form="titanic_predict" value="Submit">Predict</button>
+```
+When you go check out your page you should see the web form there for you. Press the predict button though and you'll get an error saying that method isn't allowed. Flask routes by default enable the 'GET' method but if we want to allow any additional functionality, such as submitting data to the flask server via a webform we'll need to enable those explicitly.
+
+```python
+@app.route('/titanic', methods=['GET','POST'])
+def titanic():
+    return render_template('titanic.html')
+```
+
+```html
+                {% if data.prediction %}
+                    <h1>{{data.prediction}}</h1>
+                    <h5>Ticket Class: {{data.predict_class}}</h5>
+                    <h5>Age: {{data.predict_age}}</h5>
+                    <h5>Siblings & Spouses: {{data.predict_sibsp}}</h5>
+                    <h5>Children & Parents: {{data.predict_parch}}</h5>
+                    <h5>Ticket Fare: ${{data.predict_fare}}</h5>
+                    <h5>Gender: {{data.predict_sex}}</h5>
+                {% endif %}
+```
 
 ## Basic Flask App Organization
 1. Create your file and folder structure.
@@ -148,8 +260,9 @@ from flask import Flask, request, render_template
 ```
 
 # Keep Going!
-- plot a visualization and present it on the webpage
-- train a different type of model and create a new route to its results
+- plot a visualization of the data and present it on the web page
+- have the `titanic/` route return a representative image based on the prediction of survive or not survive
+- train an entirely different model and create a new route to its results
 
 ### Further Questions: 
 - Aaron Lichtner, Data Scientist @ Nordstrom
