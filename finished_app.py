@@ -1,9 +1,11 @@
 from flask import Flask
 from flask import render_template, request
-# import matplotlib.pyplot as plt
+
+# modeling packages
+import pandas as pd
 import numpy as np
-from sklearn import datasets, linear_model
-# from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.linear_model import LogisticRegression
+from sklearn.cross_validation import train_test_split
 
 app = Flask(__name__)
 
@@ -21,7 +23,7 @@ def jazzhands():
 
 
 # dynamically generate urls and functionality
-@app.route('/twice/<int:x>') # int says the expected data type
+@app.route('/twice/<int:x>')  # int says the expected data type
 def twice(x):
     output = 2 * x
     return 'Two times {} is {}'.format(x, output)
@@ -32,82 +34,57 @@ def twice(x):
 # ------------------------------------ #
 
 
-@app.route('/train')
-def train_model():
-	global model
-	model = linear_model.LinearRegression()
-	X = np.array([[1, 1, 2, 3, 4, 5, 2, 5]])
-	y = np.array([[0, 1, 2, 2, 4, 3, 5, 6]])
-	model.fit(X, y)
-	message = "<p>Reading in data --</p><p>Training model --</p>"
-	return message
-
-@app.route('/predict')
-def predict():
-    #x = np.array([[float(x)]])
-    #print(x)
-    prediction = regr.predict(diabetes_X_test)
-    return prediction
-
-
-@app.route('/titanic')
-def titanic():
-    return render_template('index.html')
-
-@app.route('/titanic/train')
-def titanic_train():
-    return
-
-@app.route('/titanic/predict',  methods=['POST'])
+@app.route('/titanic/predict', methods=['GET','POST'])
 def titanic_predict():
-	result = request.form
-	return render_template('titanic.html', result=result)
+    data = {}
+    if request.form:
+        # get the input data
+        form_data = request.form
+        data['form'] = form_data
+        predict_class = float(form_data['predict_class'])
+        predict_age = float(form_data['predict_age'])
+        predict_sibsp = float(form_data['predict_sibsp'])
+        predict_parch = float(form_data['predict_parch'])
+        predict_fare = float(form_data['predict_fare'])
+        predict_sex = form_data['predict_sex']
 
+        # convert the sex from text to binary
+        if predict_sex == 'M':
+            sex = 0
+        else:
+            sex = 1
+        input_data = np.array([predict_class, predict_age, predict_sibsp, predict_parch, predict_fare, sex])
 
-@app.route('/wine')
-def wine():
-    return render_template('wine.html')
+        # get prediction
+        prediction = L1_logistic.predict_proba(input_data.reshape(1, -1))
+        prediction = prediction[0][1] # probability of survival
+        data['prediction'] = '{:.2f}% Chance of Survival'.format(prediction)
+        data['predict_class'] = predict_class
+        data['predict_age'] = predict_age
+        data['predict_sibsp'] = predict_sibsp
+        data['predict_parch'] = predict_parch
+        data['predict_fare'] = predict_fare
+        data['predict_sex'] = predict_sex
+    return render_template('titanic.html', data=data)
+
 
 if __name__ == '__main__':
+    # build a basic model for titanic survival
+    titanic_df = pd.read_csv('titanic_data.csv')
+    titanic_df['sex_binary'] = titanic_df['sex'].map({'female': 1, 'male': 0})
+    train_df, test_df = train_test_split(titanic_df)
 
-    # Load the diabetes dataset
-    diabetes = datasets.load_diabetes()
+    features = [u'pclass', u'age', u'sibsp', u'parch', u'fare', u'sex_binary', 'survived']
+    train_df = train_df[features].dropna()
+    test_df = test_df[features].dropna()
 
-    # Use only one feature
-    diabetes_X = diabetes.data[:, np.newaxis, 2]
+    features.remove('survived')
+    X_train = train_df[features]
+    y_train = train_df['survived']
+    X_test = test_df[features]
+    y_test = test_df['survived']
 
-    # Split the data into training/testing sets
-    diabetes_X_train = diabetes_X[:-20]
-    diabetes_X_test = diabetes_X[-20:]
+    L1_logistic = LogisticRegression(C=1.0, penalty='l1')
+    L1_logistic.fit(X_train, y_train)
 
-    # Split the targets into training/testing sets
-    diabetes_y_train = diabetes.target[:-20]
-    diabetes_y_test = diabetes.target[-20:]
-
-    # Create linear regression object
-    regr = linear_model.LinearRegression()
-
-    # Train the model using the training sets
-    regr.fit(diabetes_X_train, diabetes_y_train)
-
-    # Make predictions using the testing set
-    diabetes_y_pred = regr.predict(diabetes_X_test)
-    print(diabetes_X_test)
-
-    # # The coefficients
-    # print('Coefficients: \n', regr.coef_)
-    # # The mean squared error
-    # print("Mean squared error: %.2f"
-    #       % mean_squared_error(diabetes_y_test, diabetes_y_pred))
-    # # Explained variance score: 1 is perfect prediction
-    # print('Variance score: %.2f' % r2_score(diabetes_y_test, diabetes_y_pred))
-    #
-    # # Plot outputs
-    # plt.scatter(diabetes_X_test, diabetes_y_test, color='black')
-    # plt.plot(diabetes_X_test, diabetes_y_pred, color='blue', linewidth=3)
-    #
-    # plt.xticks(())
-    # plt.yticks(())
-    #
-    # plt.show()
     app.run(debug=True)

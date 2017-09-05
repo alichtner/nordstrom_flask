@@ -89,7 +89,7 @@ def twice(x):
 ```
  - *Note: if you only wish to pass a string in dynamically, say someone's username, you only need `/<username>`, the `/<int:>` part isn't necessary.*
 
-#Now let's do some Data Science
+# Now let's do some Data Science
 
 We will be building a survival classifier using the [Titanic Survival Dataset](https://www.kaggle.com/c/titanic/data). 
 
@@ -97,12 +97,21 @@ The code to read in the data, split it up and train the model has already been w
 
 When submitting a form, make sure to allow the POST method to be used with your route.
 
+1. First make sure you have all the required packages in your virtualenv.
+
 ```python
+# python 2
 pip install sklearn 
+pip install pandas
+
+# python 3
+pip3 install sklearn 
+pip3 install pandas
 ```
 
 ```python 
-from flask import Flask, request
+from flask import Flask
+from sklearn import ...
 ```
 
 1. train model without using a route, predict with it, then run it through a template
@@ -125,6 +134,7 @@ You are now able to train/load a model into a flask app and predict with it. Now
     | - static/
             | - css/
             | - resources/
+            | - js/
     | - templates/
             | - index.html
     | - data/
@@ -141,7 +151,7 @@ from flask import Flask, request, render_template
 - plot a visualization and present it on the webpage
 - train a different type of model and create a new route to its results
 
-Further Questions: 
+### Further Questions: 
 - Aaron Lichtner, Data Scientist @ Nordstrom
 - LinkedIn: https://www.linkedin.com/in/aaronlichtner/
 - Email: [aaron.lichtner@nordstrom.com](aaron.lichtner@nordstrom.com)

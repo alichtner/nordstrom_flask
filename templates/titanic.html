@@ -10,12 +10,13 @@
 
     <title>Logo Nav - Start Bootstrap Template</title>
 
+
+      <!-- Custom styles for this template -->
+      <link  rel="stylesheet" href="{{ url_for('static', filename='css/logo-nav.css') }}">
+
     <!-- Bootstrap core CSS -->
 
     <link  rel="stylesheet" href="{{ url_for('static', filename='vendor/bootstrap/css/bootstrap.min.css') }}">
-
-    <!-- Custom styles for this template -->
-      <link  rel="stylesheet" href="{{ url_for('static', filename='css/logo-nav.css') }}">
 
   </head>
 
@@ -33,15 +34,9 @@
         <div class="collapse navbar-collapse" id="navbarResponsive">
           <ul class="navbar-nav ml-auto">
             <li class="nav-item active">
-              <a class="nav-link" href="#">Home
-                <span class="sr-only">(current)</span>
-              </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/titanic">Titanic</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/wine">Wine</a>
+              <a class="nav-link" href="/titanic/predict">Titanic</a>
             </li>
           </ul>
         </div>
@@ -51,29 +46,49 @@
     <!-- Page Content -->
     <div class="container">
       <h1 class="mt-5">Would you survive the Titanic?</h1>
-      <p>The logo in the navbar is now a default Bootstrap feature in Bootstrap 4! Make sure to set the width and height of the logo within the HTML. For best results, it's recommended that you use an SVG image as your logo.</p>
+        <p>This model predicts the probability of survival on the titanic using a logistic regression model trained on actual data from the Titanic.</p>
+        <div class="row">
+            <div class="col-lg-6">
+            <form action="/titanic/predict" method="post" id="titanic_predict">
+                 <div>
+                    <label for="name">Ticket Class: 1, 2, or 3</label>
+                    <input type="text" id="class" name="predict_class">
+                </div>
+                <div>
+                    <label for="name">Age: 0 - 100 </label>
+                    <input type="text" id="age" name="predict_age">
+                </div>
+                <div>
+                    <label for="name"># Siblings and Spouses</label>
+                    <input type="text" id="sibsp" name="predict_sibsp">
+                </div>
+                <div>
+                    <label for="name"># Children and Parents</label>
+                    <input type="text" id="parch" name="predict_parch">
+                </div>
+                <div>
+                    <label for="name">Ticket Fare: 0 - 500 ($) </label>
+                    <input type="text" id="fare" name="predict_fare">
+                </div>
+                <div>
+                    <label for="name">Gender: M or F</label>
+                    <input type="text" id="sex" name="predict_sex">
+                </div>
+            </form>
+            <button class="btn" type="submit" form="titanic_predict" value="Submit">Predict</button>
+            </div>
 
-        <div class="col-lg-6">
-        <form action="/titanic/predict" method="post" id="titanic_predict">
+            <!-- Data Presentation -->
             <div>
-                <label for="name">Gender: M or F</label>
-                <input type="text" id="gender" name="predict_gender">
+                <h1>{{data.prediction}}</h1>
+                <h5>Ticket Class: {{data.predict_class}}</h5>
+                <h5>Age: {{data.predict_age}}</h5>
+                <h5>Siblings & Spouses: {{data.predict_ibsp}}</h5>
+                <h5>Children & Parents: {{data.predict_parch}}</h5>
+                <h5>Ticket Fare: ${{data.predict_fare}}</h5>
+                <h5>Gender: {{data.predict_sex}}</h5>
             </div>
-            <div>
-                <label for="mail">Age: 0 - 100 </label>
-                <input type="text" id="age" name="predict_age">
-            </div>
-            <div>
-                <label for="msg">Fare Cost: 0 - 35000 ($)</label>
-                <input type="text" id="fare" name="predict_fare">
-            </div>
-        </form>
-        <button type="submit" form="titanic_predict" value="Submit">Predict</button>
         </div>
-    <div class="col-lg-6">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/RMS_Titanic_3.jpg/1200px-RMS_Titanic_3.jpg" height="400px">
-    </div>
-        {{result}}
     </div>
 
 
