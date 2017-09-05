@@ -293,7 +293,7 @@ We are now getting the input data from the form and predicting with it. Now we h
         </div>
 ```
 
-Now all the bits are pieces are hooked up. Time to do just a bit of UI work. Jinja2 allows you to use python-like logic to control the HTML that is displayed. 
+Now all the bits and pieces are hooked up. Time to do just a bit of UI work. Jinja2 allows you to use python-like logic to control the HTML that is displayed. 
 
 13. In the `titanic.html` file, use a simple **if** statement to not display anything if no prediction is present. Then add some HTML to structure what the user will see. Here we want to show the prediction and the input parameters they put into the model.
 ```html
@@ -311,8 +311,14 @@ Now all the bits are pieces are hooked up. Time to do just a bit of UI work. Jin
         </div>
 ```
 
+## That's It! (we hope)
+
+[Fully Hooked Up Titanic Survival Model](http://127.0.0.1:5000/titanic)
+
+At this point you should hopefully have a fully function flask-based web app that trains a model off real data and presents a simple interface to a user to allow them to make a prediction with the model and see the results. 
+
 ## Basic Flask App Organization
-1. Create your file and folder structure.
+Flask has some basic requirements when it comes to file and folder structure.
 ```python
 # the most basic flask app
  yourapp/
@@ -332,7 +338,6 @@ Now all the bits are pieces are hooked up. Time to do just a bit of UI work. Jin
             | - index.html
     | - data/
 ```
-
 # Keep Going!
 - plot a visualization of the data and present it on the web page
 - have the `titanic/` route return a representative image based on the prediction of survive or not survive
