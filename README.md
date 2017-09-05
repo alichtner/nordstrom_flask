@@ -19,8 +19,8 @@ Flask is a web framework for Python. In other words, it's a way to use python to
 # Creating your Flask Environment
 ### python 3
 
-- Install python 3
-`brew install python3`
+- Install pip
+`pip3 install virtualenv`
 
 - Set up the virtual environment
 `virtualenv -p python3 venv3`
@@ -28,10 +28,13 @@ Flask is a web framework for Python. In other words, it's a way to use python to
 - Activate the virtual environment
 `source venv3/bin/activate`
 
+- Install the needed packages
+`pip install -r requirements.txt`
+
 ### python 2
 
-- Install python 2
-`brew install python2`
+- Install pip
+`pip install virtualenv`
 
 - Set up the virtual environment
 `virtualenv -p python2 venv2`
@@ -39,8 +42,8 @@ Flask is a web framework for Python. In other words, it's a way to use python to
 - Activate the virtual environment
 `source venv2/bin/activate`
 
-- Install flask
-`pip install flask`
+- Install the needed packages
+`pip install -r requirements.txt`
 
 # Basic Flask App
 
@@ -100,15 +103,17 @@ The code to read in the data, split it up and train the model has already been w
 
 
 ### Install and import additional packages 
-1. First make sure you have all the required packages in your virtualenv.
+1. If you haven't already done so, make sure you have all the required packages in your virtualenv.
 
 ```bash
-# python 2
-pip install pandas, sklearn, scipy
+pip install pandas
+pip install sklearn
+pip install scipy
 
-# python 3
-pip3 install pandas, sklearn, scipy
-```
+or 
+
+pip install -r requirements.txt
+
 
 2. Import the libraries required for modeling. `render_template` and `request` are needed for us to get data from the web interface to the flask app and then to present the results in a more visually appealing way than basic text.
 ```python
