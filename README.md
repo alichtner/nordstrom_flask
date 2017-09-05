@@ -11,7 +11,7 @@ Flask is a web framework for Python. In other words, it's a way to use python to
 ### Workshop Topics
  - [Creating your flask dev environment](#creating-your-flask-environment)
  - [Deploying a basic flask app](#basic-flask-app)
- - [Using Flask to train and predict with a model](#now-lets-do-some-data-science)
+ - [Train a model in flask](#now-lets-do-some-data-science)
  - [Using a Bootstrap templates to add some style](#rendering-html-templates-using-flask)
  - [Passing data and predicting with our model](#hooking-it-all-up)
  - [Jinja2 templating with flask](#jinja2-templating)
@@ -54,6 +54,7 @@ app = Flask(__name__)
 
 2. Add your first route. Routes connect web pages to unique python functions. In this example, the root page of the site, `yoursite/`, should trigger the `home() function and return 'Hello World!' as the server response to the webpage. 
 ```python
+# routes go here
 @app.route('/')
 def home():
     return 'Hello World!'
@@ -61,6 +62,7 @@ def home():
 
 3. Now just add some code at the bottom to tell python what to do when the script is run.
 ```python
+# script initialization
 if __name__ == '__main__':
     app.run(debug=True)
 ```

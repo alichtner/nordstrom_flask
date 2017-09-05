@@ -8,10 +8,10 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
 
+# create the flask object
 app = Flask(__name__)
 
-
-# home page
+# routes go here
 @app.route('/')
 def home():
     return 'Hello World!'
