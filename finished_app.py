@@ -70,7 +70,7 @@ def titanic_predict():
 
 if __name__ == '__main__':
     # build a basic model for titanic survival
-    titanic_df = pd.read_csv('titanic_data.csv')
+    titanic_df = pd.read_csv('data/titanic_data.csv')
     titanic_df['sex_binary'] = titanic_df['sex'].map({'female': 1, 'male': 0})
     train_df, test_df = train_test_split(titanic_df)
 
