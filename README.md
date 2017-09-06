@@ -364,7 +364,7 @@ At this point you should hopefully have a fully function flask-based web app tha
 
 
 # More Resources
-- [Flask Documentionat](http://flask.pocoo.org/)
+- [Flask Documention](http://flask.pocoo.org/)
 - [Free Bootstrap HTML Templates](https://startbootstrap.com/)
 - [Jinja Templating](http://jinja.pocoo.org/)
 - [Flask Mega-Tutorial](https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-i-hello-world)
