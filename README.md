@@ -1,8 +1,11 @@
 # Flask and Data Science Workshop
+#### Seattle Building Intelligent Applications Meetup 
+
+Aaron Lichtner, Data Scientist @ Nordstrom
 
 *September 6, 2017*
 
-Aaron Lichtner, Data Scientist @ Nordstrom
+*Metis Seattle*
 
 ---
 
@@ -10,16 +13,17 @@ Flask is a web framework for Python. In other words, it's a way to use python to
 
 ### Workshop Topics
  - [Creating your flask dev environment](#creating-your-flask-environment)
+ - [Flask App Organization](#flask-app-organization)
  - [Deploying a basic flask app](#basic-flask-app)
  - [Train a model in flask](#now-lets-do-some-data-science)
  - [Using a Bootstrap templates to add some style](#rendering-html-templates-using-flask)
  - [Passing data and predicting with our model](#hooking-it-all-up)
- - [Jinja2 templating with flask](#jinja2-templating)
+ - [Jinja templating with flask](#jinja-templating)
  
 # Creating your Flask Environment
 ### python 3
 
-- Install pip
+- Install virtualenv
 `pip3 install virtualenv`
 
 - Set up the virtual environment
@@ -33,7 +37,7 @@ Flask is a web framework for Python. In other words, it's a way to use python to
 
 ### python 2
 
-- Install pip
+- Install virtualenv
 `pip install virtualenv`
 
 - Set up the virtual environment
@@ -45,9 +49,32 @@ Flask is a web framework for Python. In other words, it's a way to use python to
 - Install the needed packages
 `pip install -r requirements.txt`
 
+## Flask App Organization
+Flask has some basic requirements when it comes to file and folder structure.
+```python
+# the most basic flask app
+ yourapp/
+    |
+    | - app.py
+```
+- Example of a more complex application structure
+```python
+# typical app structure
+ yourapp/
+    |
+    | - app.py
+    | - static/
+            | - css/
+            | - resources/
+            | - js/
+    | - templates/
+            | - index.html
+    | - data/
+```
+
 # Basic Flask App
 
-1. In your root directory, create your `app.py` file, import flask and create your flask object.
+1. From the root directory, open your `app.py` file, import flask and create your flask object.
 ```python
 from flask import Flask
 
@@ -55,7 +82,7 @@ from flask import Flask
 app = Flask(__name__)
 ```
 
-2. Add your first route. Routes connect web pages to unique python functions. In this example, the root page of the site, `yoursite/`, should trigger the `home() function and return 'Hello World!' as the server response to the webpage. 
+2. Add your first route. Routes connect web pages to unique python functions. In this example, the root page of the site, `yoursite/`, should trigger the `home()` function and return 'Hello World!' as the server response to the webpage. 
 ```python
 # routes go here
 @app.route('/')
@@ -85,7 +112,7 @@ def jazzhands():
     return "<h1>Here's some <i>Pizzazz!</i></h1>"
 ```
 
-7. One final route in our basic app. This route will use what's known as **dynamic routing**. These allow more flexibility with your urls and the ability to pass variables straight through the url. Variables must be passed in between angled brackets '<>'.
+7. One final route in our basic app. This route will use what's known as **dynamic routing**. These allow more flexibility with your urls and the ability to pass variables straight through the url. Variables must be passed in between angled brackets '<>' after the root of the url, in this case `/twice/`.
 
 ```python
 @app.route('/twice/<int:x>') # int says the expected data type
@@ -93,7 +120,11 @@ def twice(x):
     output = 2 * x
     return 'Two times {} is {}'.format(x, output)
 ```
- - *Note: if you only wish to pass a string in dynamically, say someone's username, you only need `/<username>`, the `/<int:>` part isn't necessary.*
+ 
+ #### Your turn: 
+ 8. Add a dynamic route `/login` that takes in a username and returns a personalized greeting to that user.
+   - *Note: When dynamically passing strings you don't need to specify the data type*
+
 
 # Now let's do some Data Science
 
@@ -101,6 +132,7 @@ We will be building a survival classifier using the [Titanic Survival Dataset](h
 
 The code to read in the data, split it up and train the model has already been written for you. We're going to focus on how to implement the model and predict with it through the flask web interface. 
 
+- If you want more info on models for this dataset take a look here. [Titanic Dataset Modeling](https://blog.socialcops.com/engineering/machine-learning-python/)
 
 ### Install and import additional packages 
 1. If you haven't already done so, make sure you have all the required packages in your virtualenv.
@@ -113,6 +145,7 @@ pip install scipy
 or 
 
 pip install -r requirements.txt
+```
 
 
 2. Import the libraries required for modeling. `render_template` and `request` are needed for us to get data from the web interface to the flask app and then to present the results in a more visually appealing way than basic text.
@@ -129,7 +162,7 @@ from sklearn.metrics import classification_report
 ```
 
 ### Build the model
-3. The following code will read in the `titanic_data.csv`, clean it up, split it into test and training sets and then train a simple logistic regression model to predict the probability of survival. Paste this code right at the start of the script initialization. The model will be available in the namespace of the flask app.
+3. The following code will read in the `titanic_data.csv`, clean it up, select the pertinent features, split the data into test and training sets and then train a simple logistic regression model to predict the probability of survival. Paste this code right at the start of the script initialization. The model will be available in the namespace of the flask app.
 
 ```python
 # read in data and clean the gender column
@@ -179,7 +212,7 @@ def titanic():
 ## Hooking it all up
 ### Getting prediction inputs into flask
 
-Our model uses the following variables to predict whether someone will survive the titanic:
+Our model uses the following variables to predict whether someone would have survived the titanic:
 - Ticket Class
 - Age
 - \# Siblings & Spouses 
@@ -191,7 +224,7 @@ In order to hook up the web interface with the model we have to allow the user t
 
 ![](static/resources/form.png)
 
-7. In the `titanic.html` file, add the following code.
+7. In the `titanic.html` file, add the following code. This creates our webform, labels the inputs so we can grab them later and implements the `predict` button that sends the form to the `/titanic` flask route.`
 ```html                
             <!-- The web form goes here -->
             <form action="/titanic" method="post" id="titanic_predict">
@@ -249,17 +282,17 @@ def titanic():
         print(data)
     return render_template('titanic.html')
 ```
-10. Test the connection using the **predict** button on the web page to the flask function to make sure data is being passed from the web form by printing it to the terminal. We will be feeding this data into our model to make our predictions.
+10. Test the connection from the web page to the flask function using the **predict** button to make sure data is being passed from the web form by printing it to the terminal. We will be feeding this data into our model to make our predictions.
 
 ### Prepare input data and get the prediction
 
 11a. Convert the `predict_sex` variable from a string into binary (F = 0, M = 1).
 
-11b. Build the numpy array of values to pass into the model. The order does matter. 
+11b. Build the numpy array of values `input_data` to pass into the model. The order **DOES** matter. 
 
-11c. Call the `predict_proba()` method on our logistic regression model with our input data. 
+11c. Call the `predict_proba()` method on the logistic regression model with our input data. 
 
-11d. Grab the **survival probability** from the prediction and put into the `data` object to be passed back to the web page.
+11d. Grab the **survival probability** from the prediction and put it into the `data` dictionary to be passed back to the web page.
 
 ```python
 def titanic():
@@ -288,11 +321,11 @@ def titanic():
         data['prediction'] = '{:.1f}% Chance of Survival'.format(prediction * 100)
     return render_template('titanic.html', data=data)
 ``` 
-### Jinja2 Templating
+### Jinja Templating
 
-We are now getting the input data from the form and predicting with it. Now we have to tell the client-side how to display the information. We will be using Jinja2 templating to control how data from the server is displayed. 
+We are now getting the input data from the form and predicting with it. Now we have to tell the client-side how to display the information. We will be using Jinja templating to control how data from the server is displayed. 
 
-12. Add the following to `titanic.html`. In Jinja2, we access data objects inside double brackets, i.e. `{{}}`. 
+12. Add the following to `titanic.html`. In Jinja, we access data objects inside double brackets, i.e. `{{}}`. 
 ```html
         <div class="col-lg-6">
             <!-- Result presentation goes here -->
@@ -300,9 +333,9 @@ We are now getting the input data from the form and predicting with it. Now we h
         </div>
 ```
 
-Now all the bits and pieces are hooked up. Time to do just a bit of UI work. Jinja2 allows you to use python-like logic to control the HTML that is displayed. 
+Take a look at the `/titanic` page and you can see that all the bits and pieces are hooked up. Time to do just a bit of UI work. Jinja allows you to use python-like logic to control the HTML that is displayed. 
 
-13. In the `titanic.html` file, use a simple **if** statement to not display anything if no prediction is present. Then add some HTML to structure what the user will see. Here we want to show the prediction and the input parameters they put into the model.
+13. In the `titanic.html` file, use a simple **if** statement to prevent displaying anything if a prediction is not present. Then add some HTML to structure what the user will see. Here we want to show the prediction and the input parameters they put into the model.
 ```html
          <div class="col-lg-6">
             <!-- Result presentation goes here -->
@@ -324,38 +357,24 @@ Now all the bits and pieces are hooked up. Time to do just a bit of UI work. Jin
 
 At this point you should hopefully have a fully function flask-based web app that trains a model off real data and presents a simple interface to a user to allow them to make a prediction with the model and see the results. 
 
-## Basic Flask App Organization
-Flask has some basic requirements when it comes to file and folder structure.
-```python
-# the most basic flask app
- yourapp/
-    |
-    | - app.py
-```
-- Example of a more complex application structure
-```python
- yourapp/
-    |
-    | - app.py
-    | - static/
-            | - css/
-            | - resources/
-            | - js/
-    | - templates/
-            | - index.html
-    | - data/
-```
 # Keep Going!
 - plot a visualization of the data and present it on the web page
 - have the `titanic/` route return a representative image based on the prediction of survive or not survive
 - train an entirely different model and create a new route to its results
 
 
-# Free Bootstrap Templates
-[Bootstrap Templates](https://startbootstrap.com/)
+# More Resources
+- [Flask Documentionat](http://flask.pocoo.org/)
+- [Free Bootstrap HTML Templates](https://startbootstrap.com/)
+- [Jinja Templating](http://jinja.pocoo.org/)
+- [Flask Mega-Tutorial](https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-i-hello-world)
+
 
 
 ### Further Questions: 
 - Aaron Lichtner, Data Scientist @ Nordstrom
 - LinkedIn: https://www.linkedin.com/in/aaronlichtner/
 - Email: [aaron.lichtner@nordstrom.com](aaron.lichtner@nordstrom.com)
+
+### We're Hiring!
+#### [Nordstrom Tech Careers ](http://about.nordstrom.com/careers/#/headquarters-careers/main)
